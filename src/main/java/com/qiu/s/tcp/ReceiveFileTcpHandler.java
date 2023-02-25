@@ -15,7 +15,7 @@ public class ReceiveFileTcpHandler extends SimpleChannelInboundHandler {
     private static BufferedOutputStream bos;
     private static int count = 1;
     private static String path = "d:/2/";
-    private static String filename = "default.h264";
+    private static String filename = "569mb.h264";
 
     static {
         try {
@@ -49,7 +49,7 @@ public class ReceiveFileTcpHandler extends SimpleChannelInboundHandler {
 
        // FileEntity  file = (FileEntity) o;
 //        byte[] bytes = (byte[]) o;
-        System.out.println(o.toString());
+        //System.out.println(o.toString());
         ByteBuf buf = (ByteBuf) o;
         byte[] bytes = new byte[buf.readableBytes()];
         System.out.println("buf.readableBytes:"+buf.readableBytes());

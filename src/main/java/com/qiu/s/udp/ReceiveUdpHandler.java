@@ -25,7 +25,7 @@ public class ReceiveUdpHandler extends SimpleChannelInboundHandler<DatagramPacke
     private static BufferedOutputStream bos;
     private static int count = 1;
     private static String path = "d:/2/";
-    private static String filename = "doctor-2022.h264";
+    private static String filename = "569mb.h264";
 
     static {
         try {

@@ -1,7 +1,6 @@
 package com.qiu.c.tcp;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.EmptyByteBuf;
+
 
 import java.io.*;
 import java.net.*;
@@ -17,8 +16,8 @@ public class SocketSendFileClient {
         Socket socket = new Socket("127.0.0.1",9999);
         int count=1;
         int length;
-        byte[] temp = new byte[48*1024];
-        FileInputStream fis = new FileInputStream("d:/default.h264");
+        byte[] temp = new byte[64*1024];
+        FileInputStream fis = new FileInputStream("d:/569mb.h264");
         BufferedInputStream bis = new BufferedInputStream(fis);
         BufferedOutputStream bos;
 
@@ -38,7 +37,7 @@ public class SocketSendFileClient {
                 bos.write(data);
                 bos.flush();
                 System.out.println("发送次数:"+count++ +"  发送字节数:"+length);
-                Thread.sleep(10);
+                //Thread.sleep();
             }
 
             while (true){
@@ -48,8 +47,8 @@ public class SocketSendFileClient {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
         }
 
 

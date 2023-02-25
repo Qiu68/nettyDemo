@@ -18,7 +18,7 @@ public class UdpTest {
         int count=1;
         int length;
         byte[] temp = new byte[60*1024];
-        FileInputStream fis = new FileInputStream("d:/doctor-2022.h264");
+        FileInputStream fis = new FileInputStream("d:/569mb.h264");
         BufferedInputStream bis = new BufferedInputStream(fis);
 
         try {
@@ -36,7 +36,7 @@ public class UdpTest {
                         InetAddress.getByName("127.0.0.1"),8888);
                 ds.send(dp);
                 System.out.println("发送次数:"+count++ +"  发送字节数:"+length);
-              Thread.sleep(10);
+              Thread.sleep(1);
             }
 
 
@@ -44,7 +44,8 @@ public class UdpTest {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             e.printStackTrace();
         }
 
