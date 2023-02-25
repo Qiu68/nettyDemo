@@ -7,6 +7,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 public class ReceiveFileTcpHandler extends SimpleChannelInboundHandler {
 
@@ -16,11 +18,16 @@ public class ReceiveFileTcpHandler extends SimpleChannelInboundHandler {
     private static int count = 1;
     private static String path = "d:/2/";
     private static String filename = "569mb.h264";
+    private static ByteBuffer byteBuffer;
+    private static FileChannel fileChannel;
 
     static {
         try {
             fos = new FileOutputStream(path + filename);
-            bos = new BufferedOutputStream(fos);
+//            bos = new BufferedOutputStream(fos);
+            fileChannel = fos.getChannel();
+            byteBuffer = ByteBuffer.allocate(640);
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -51,18 +58,24 @@ public class ReceiveFileTcpHandler extends SimpleChannelInboundHandler {
 //        byte[] bytes = (byte[]) o;
         //System.out.println(o.toString());
         ByteBuf buf = (ByteBuf) o;
-        byte[] bytes = new byte[buf.readableBytes()];
-        System.out.println("buf.readableBytes:"+buf.readableBytes());
-         buf.readBytes(bytes);
-        int length = bytes.length;
+
+        buf.readBytes(byteBuffer);
+
+        //byte[] bytes = new byte[buf.readableBytes()];
+//        System.out.println("buf.readableBytes:"+buf.readableBytes());
+//         buf.readBytes(bytes);
+        int length = byteBuffer.limit();
         int flag = length;
+        byteBuffer.flip();
         if (length > 0){
-            byte[] data = new byte[length];
-            System.arraycopy(bytes,0,data,0,length);
-            System.out.println("接收次数:"+count++ +"接收大小:"+data.length);
-            bos.write(data);
-            bos.flush();
+//            byte[] data = new byte[length];
+//            System.arraycopy(bytes,0,data,0,length);
+            System.out.println("接收次数:"+count++ +"接收大小:"+length);
+//            bos.write(data);
+//            bos.flush();
+            fileChannel.write(byteBuffer);
             channelHandlerContext.writeAndFlush(flag);
+            byteBuffer.clear();
         }
 //        RandomAccessFile randomAccessFile = new RandomAccessFile("d:/2/doctor-2022.h264","rw");
 //        randomAccessFile.seek(start);
