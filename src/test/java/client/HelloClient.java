@@ -18,7 +18,7 @@ public class HelloClient {
                         socketChannel.pipeline().addLast(new StringEncoder());
                     }
                 })
-                .connect("127.0.0.1",8888)
+                .connect("47.98.96.79",11054)
                 .sync()
                 .channel()
                 .writeAndFlush("hello world!");

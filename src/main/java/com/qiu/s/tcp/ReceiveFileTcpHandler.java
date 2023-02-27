@@ -7,6 +7,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -37,6 +38,7 @@ public class ReceiveFileTcpHandler extends SimpleChannelInboundHandler {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+       // System.out.println(ctx);
         super.channelActive(ctx);
     }
 
@@ -58,6 +60,9 @@ public class ReceiveFileTcpHandler extends SimpleChannelInboundHandler {
 //        byte[] bytes = (byte[]) o;
         //System.out.println(o.toString());
         ByteBuf buf = (ByteBuf) o;
+
+        SocketAddress socketAddress = channelHandlerContext.channel().remoteAddress();
+        System.out.println(socketAddress);
 
         buf.readBytes(byteBuffer);
 

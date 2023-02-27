@@ -19,12 +19,13 @@ import java.nio.channels.FileChannel;
 public class UdpReceiveServer {
     public static void main(String[] args) throws SocketException, FileNotFoundException {
         DatagramSocket ds = new DatagramSocket(8888);
+        //设置udp接收数据的缓冲区大小，缓冲区太小会导致丢包
         ds.setReceiveBufferSize(1024*1024*10);
-        FileOutputStream fos = new FileOutputStream("d:/2/569mb.h264");
+        FileOutputStream fos = new FileOutputStream("d:/2/default.h264");
         FileChannel fileChannel = fos.getChannel();
         BufferedOutputStream bos = new BufferedOutputStream(fos);
         int count = 1;
-        byte[] data = new byte[60*1024];
+        byte[] data = new byte[1400];
         DatagramPacket dp = new DatagramPacket(data,data.length);
         while (true){
             try {

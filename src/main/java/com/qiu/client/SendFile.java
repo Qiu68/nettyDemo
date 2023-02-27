@@ -28,6 +28,7 @@ public class SendFile implements Serializable {
 
     }
 
+
     public File getFile() {
         return file;
     }

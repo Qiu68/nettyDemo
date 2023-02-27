@@ -17,8 +17,8 @@ public class UdpTest {
         DatagramPacket dp = null;
         int count=1;
         int length;
-        byte[] temp = new byte[60*1024];
-        FileInputStream fis = new FileInputStream("d:/569mb.h264");
+        byte[] temp = new byte[1400];
+        FileInputStream fis = new FileInputStream("d:/default.h264");
         BufferedInputStream bis = new BufferedInputStream(fis);
 
         try {
@@ -33,10 +33,10 @@ public class UdpTest {
                 byte[] data = new byte[length];
                 System.arraycopy(temp,0,data,0,length);
                 dp = new DatagramPacket(data, data.length,
-                        InetAddress.getByName("127.0.0.1"),8888);
+                        InetAddress.getByName("43.139.160.177"),8888);
                 ds.send(dp);
                 System.out.println("发送次数:"+count++ +"  发送字节数:"+length);
-              Thread.sleep(1);
+              Thread.sleep(2);
             }
 
 

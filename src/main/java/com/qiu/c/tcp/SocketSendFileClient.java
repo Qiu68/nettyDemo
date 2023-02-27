@@ -25,18 +25,18 @@ public class SocketSendFileClient {
         long pageSize = 64*1024; //每段的字节数
         long eventPage = pageSize;
         long fileLength;
-        long count = 1;
+        long count = 1; //分段的次数
         FileInputStream fis = new FileInputStream(path+fileName);
         FileChannel fileChannel = fis.getChannel();
         SocketChannel socketChannel  = SocketChannel.open();
         socketChannel.configureBlocking(true);
-        socketChannel.connect(new InetSocketAddress("127.0.0.1", 9999));
+        socketChannel.connect(new InetSocketAddress("47.98.96.79", 19093));
 
 
         String file = path + fileName;
         try {
             RandomAccessFile in = new RandomAccessFile(file,"r");
-           fileLength = in.length();
+            fileLength = in.length();
 
            if (fileLength > eventPage) {
                eventPage = fileLength > eventPage ? eventPage : fileLength; //判断文件是否小于每次分段的大小
@@ -62,50 +62,51 @@ public class SocketSendFileClient {
 
     public static void main(String[] args) throws IOException {
 
-        zeroCopy("d:/","569mb.h264");
-//        InetSocketAddress address = new InetSocketAddress("127.0.0.1", 9999);
-//        SocketChannel socketChannel = SocketChannel.open();
-//        socketChannel.configureBlocking(true);
-//        socketChannel.connect(address);
-//        int count=1;
-//        FileInputStream fis = new FileInputStream("d:/569mb.h264");
-//        FileChannel fisChannel = fis.getChannel();
-//
-//        try {
-//
-//           ByteBuffer buffer = ByteBuffer.allocate(64*1024);
-//
-//
-//            while (true){
-//
-//                int length = fisChannel.read(buffer);
-//                buffer.flip();
-//                if (length == -1){
-//                    System.out.println("文件已发送完毕");
-//                    break;
-//                }
-////                byte[] data = new byte[length];
-//
-////                System.arraycopy(temp,0,data,0,length);
-////                bos.write(data);
-////                bos.flush();
-//                socketChannel.write(buffer);
-//                System.out.println("发送次数:"+count++ +"  发送字节数:"+ length);
-//                buffer.clear();
-//                //Thread.sleep();
-//
-//            }
-//
-//            while (true){
-//
-//            }
-//        } catch (SocketException e) {
+        //zeroCopy("d:/","569mb.h264");
+        InetSocketAddress address = new InetSocketAddress("47.98.96.79", 19093);
+
+        SocketChannel socketChannel = SocketChannel.open();
+        socketChannel.configureBlocking(true);
+        socketChannel.connect(address);
+        int count=1;
+        FileInputStream fis = new FileInputStream("d:/569mb.h264");
+        FileChannel fisChannel = fis.getChannel();
+
+        try {
+
+           ByteBuffer buffer = ByteBuffer.allocate(64*1024);
+
+
+            while (true){
+
+                int length = fisChannel.read(buffer);
+                buffer.flip();
+                if (length == -1){
+                    System.out.println("文件已发送完毕");
+                    break;
+                }
+//                byte[] data = new byte[length];
+
+//                System.arraycopy(temp,0,data,0,length);
+//                bos.write(data);
+//                bos.flush();
+                socketChannel.write(buffer);
+                System.out.println("发送次数:"+count++ +"  发送字节数:"+ length);
+                buffer.clear();
+                //Thread.sleep();
+
+            }
+
+            while (true){
+
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+//        } catch (InterruptedException e) {
 //            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-////        } catch (InterruptedException e) {
-////            e.printStackTrace();
-//        }
+        }
 
 
     }

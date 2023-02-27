@@ -58,6 +58,7 @@ public class ReceiveUdpHandler extends SimpleChannelInboundHandler<DatagramPacke
         System.out.println(datagramPacket.toString());
 
         DatagramPacket dp = datagramPacket;
+        System.out.println("客户端ip:"+dp.sender());
 
         int length = datagramPacket.content().readableBytes();
 

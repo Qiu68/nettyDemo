@@ -42,8 +42,8 @@ public class SendFileClient {
     public static void main(String[] args) {
 
         FileEntity file = new FileEntity();
-        file.setFileName("d:/doctor-2022.h264");
+        file.setFileName("d:/data.txt");
         file.setStart(0);
-        connect("127.0.0.1",9999,file);
+        connect("47.98.96.79",11054,file);
     }
 }
