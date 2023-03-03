@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="NettyDemo:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/NettyDemo_jar</output-path>
+    <root id="archive" name="NettyDemo.jar">
+      <element id="module-output" name="NettyDemo" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../SoftWaer/repository/io/netty/netty-all/4.1.39.Final/netty-all-4.1.39.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../SoftWaer/repository/com/alibaba/fastjson/1.2.28/fastjson-1.2.28.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

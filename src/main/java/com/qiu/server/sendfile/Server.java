@@ -1,17 +1,13 @@
 package com.qiu.server.sendfile;
 
-import com.qiu.client.SendFile;
 import com.qiu.server.sendfile.pojo.FileBody;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
 /**
- * @version 1.0
+ * @version 2.0
  * @Author:qiu
  * @Description 服务端向客户端发送文件
  * @Date 15:51 2023/2/27
@@ -22,14 +18,17 @@ public class Server {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(work);
         bootstrap.channel(NioDatagramChannel.class);
+        bootstrap.option(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(65535));
+        //设置udp socket缓冲 100m
+        bootstrap.option(ChannelOption.SO_RCVBUF, 1024 * 1048 * 100);
         bootstrap.handler(new ChannelInitializer() {
             @Override
             protected void initChannel(Channel channel) throws Exception {
-                channel.pipeline().addLast(new ServerHandler(fileBody));
+                channel.pipeline().addLast(new ServerHandler());
             }
         });
         try {
-            ChannelFuture future = bootstrap.bind(9999).sync();
+            ChannelFuture future = bootstrap.bind(8888).sync();
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -40,7 +39,7 @@ public class Server {
 
     }
     public static void main(String[] args) {
-        FileBody fileBody = new FileBody("1.txt", "d:/");
+        FileBody fileBody = new FileBody("569mb.h264", "d:/");
         init(fileBody);
     }
 }

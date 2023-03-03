@@ -25,7 +25,8 @@ public class HelloServer {
                             protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object o) throws Exception {
                                 System.out.println(o);
                             }
-                        });
+                        })
+                                .addLast(new MyDecoder());
                     }
                 })
                 .bind(8888);

@@ -1,70 +1,115 @@
 package com.qiu.client.receive;
 
-import com.alibaba.fastjson.JSON;
-import com.qiu.server.sendfile.pojo.FileBody;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.socket.DatagramPacket;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.io.IOException;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @version 1.0
  * @Author:qiu
  * @Description
- * @Date 16:23 2023/2/27
+ * @Date 9:51 2023/2/28
  **/
-public class ClientReceiveFile extends SimpleChannelInboundHandler<DatagramPacket> {
+public class ClientReceiveFile {
 
-    static FileOutputStream out;
+    static int ack = 0;
+    static Queue<Integer> lossPacket = new ArrayDeque<>();
+
+    public static void main(String[] args) {
+
+        Thread t1 = new Thread(()->{
+            while (true) {
+                if (lossPacket.isEmpty()) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.out.println("lossPacket:" + lossPacket.poll());
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        t1.start();
+        try {
+            int count = 1;
+            DatagramSocket datagramSocket = new DatagramSocket();
+            byte[] msg = "hello server".getBytes(StandardCharsets.UTF_8);
+            byte[] receiveMsg = new byte[40*1024+4];
+
+            DatagramPacket sendDatagramPacket = new DatagramPacket(msg,
+                    msg.length,new InetSocketAddress("127.0.0.1",8888));
+            datagramSocket.send(sendDatagramPacket);
+
+            DatagramPacket receiveDatagramPacket = new DatagramPacket(receiveMsg,
+                    receiveMsg.length);
+
+            datagramSocket.receive(receiveDatagramPacket);
+            byte[] data1 = new byte[receiveDatagramPacket.getData().length];
+            System.arraycopy(receiveDatagramPacket.getData(),
+                    0,data1,0,data1.length);
+            System.out.println("最后一个包的大小："+data1.length + "内容："+Util.bytesToInt(data1));
+
+            datagramSocket.setReceiveBufferSize(1024*1024*100);
+            FileOutputStream fos = new FileOutputStream("d:/2/287m.h264");
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            datagramSocket.setSoTimeout(60000);
+            while (true){
+                try{
+                    datagramSocket.receive(receiveDatagramPacket);
+                    int readLength = receiveDatagramPacket.getLength();
+
+                    byte[] orderByte =new  byte[4];
+                    //获取数据包的顺序id
+                    System.arraycopy(receiveDatagramPacket.getData(),0,orderByte,0,4);
+                    //将顺序id转换成int
+                    int order = Util.bytesToInt(orderByte);
+                    //将顺序id转换成int
+                    System.out.println("order:"+ order + "  接收数据:"+readLength + "  " +
+                            "接收到的次数:"+count++);
+                    //进行ack确认
+
+                    if (order - ack == 1){
+                        byte[] data = new byte[readLength-4];
+                        //去掉顺序id的四个字节，然后将数据包内容写入文件
+                        System.arraycopy(receiveDatagramPacket.getData(),4
+                                ,data,0,readLength-4);
+
+                        bos.write(data);
+                        bos.flush();
+                        ack = order;
+                    }
+
+                    else {
+                        //丢包了，将没有接收到的数据包id发送给服务端
+                        for (int i = ack+1;i<order;i++){
+                            lossPacket.add(i);
+                        }
+                        ack = order;
+                    }
+                }
+                catch (SocketTimeoutException e){
+                    System.out.println("超时");
+                }
 
 
 
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        /**
-         * 1.给服务打招呼
-         * 2.接收服务器数据
-         */
 
-        //1.打招呼
-        System.out.println("连接建立");
-        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer(1,6);
-        byteBuf.writeBytes("你好".getBytes(StandardCharsets.UTF_8));
-        DatagramPacket datagramPacket = new DatagramPacket(byteBuf,
-                new InetSocketAddress("127.0.0.1",9999));
-        out = new FileOutputStream("d:/2/2.txt");
-        ctx.writeAndFlush(datagramPacket);
-    }
-
-    @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
-        //2.接收服务器数据
-        FileChannel channel = out.getChannel();
-
-        ByteBuf buf = ByteBufAllocator.DEFAULT.buffer(1,100*1024);
-        buf = datagramPacket.content();
-        byte[] data = new byte[buf.readableBytes()];
-        buf.readBytes(data);
-       FileBody file = (FileBody)JSON.parseObject(data, FileBody.class);
-       //System.out.println("服务器响应:"+new String(data));
-        System.out.println("服务器:"+datagramPacket.sender()+"  接收的字节数:"+data.length);
-        System.out.println("文件对象:"+file.toString());
-        byte[] bytes = new byte[file.getData().length];
-        bytes = file.getData();
-        System.out.println("数据大小:"+bytes.length);
-        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
-        buffer.put(bytes);
-        buffer.flip();
-        channel.write(buffer);
-        buffer.clear();
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
